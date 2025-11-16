@@ -28,10 +28,11 @@ output logic [9:0] x_val, y_val
     logic hsync_reg = 0;
     logic vsync_reg = 0;
 
-    logic hsync_reg1, vsync_reg1; // This creates additional cycle delay
-    logic hsync_reg2, vsync_reg2; // This creates second additional cycle delay
+    // delay hsync, vsync to match color output
+    logic hsync_reg1, vsync_reg1;
+    logic hsync_reg2, vsync_reg2;
 
-    // pipeline registers for x_val and y_val
+    // delay x_val, y_val to match color output
     logic [9:0] x_val_reg1, x_val_reg2;
     logic [9:0] y_val_reg1, y_val_reg2;
 
@@ -51,13 +52,13 @@ output logic [9:0] x_val, y_val
         end
 
         // hsync vsync check
-        // flip flops to delay to match color synchronization
+        // delay hsync, vsync to match color output
         hsync_reg1 <= (x_cur >= H_SYNC_START) && (x_cur <= H_SYNC_END);
         vsync_reg1 <= (y_cur >= V_SYNC_START) && (y_cur <= V_SYNC_END);
         hsync_reg2 <= hsync_reg1;
         vsync_reg2 <= vsync_reg1;
 
-        // pipeline x_val and y_val to add 2-cycle delay
+        // delay x_val, y_val to match color output
         x_val_reg1 <= x_cur;
         x_val_reg2 <= x_val_reg1;
 
