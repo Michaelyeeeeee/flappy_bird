@@ -1,5 +1,7 @@
+`timescale 1ns/1ps
+
 module vga(
-input logic game_clk, // possibly just put PLL in this module
+input logic game_clk, // possibly just put PLL in this module or have universal PLL and no slower game clock
 input logic pll,
 input logic [2:0] rgb,
 output logic hsync, vsync, // active high
@@ -22,7 +24,6 @@ output logic [2:0] color
 
     vga_color display_color(
         .clk(pll),
-        .game_clk(game_clk),
         .x_val(x_pos),
         .y_val(y_pos),
         .rgb_in(rgb),
