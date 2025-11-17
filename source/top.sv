@@ -1,3 +1,12 @@
+// ON LED SIDE:
+// HSYNC PIN: ICE 42
+// VSYNC PIN: ICE 36
+// RED: ICE (MSB to LSB) 45 47 2 4
+// GREEN: ICE (MSB to LSB) 31 34 38 43
+// BLUE: ICE (MSB to LSB) 44? 46 48 3
+// VCC: 
+
+
 module top (
 output logic ICE_42, // HSYNC
 output logic ICE_36, // VSYNC
