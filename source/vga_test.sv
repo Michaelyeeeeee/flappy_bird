@@ -13,8 +13,9 @@ module vga_test(
         else if (x < 160) color = 3'b001;
         else if (x < 240) color = 3'b010;
         else if (x < 320) color = 3'b100;
-        else if (x < 400) color = 3'b101;
-        else if (x < 480) color = 3'b110;
+        else if (x < 400) color = 3'b011;
+        else if (x < 480) color = 3'b101;
+        else if (x < 560) color = 3'b110;
         else color = 3'b111;
 
         if (x == X_SIZE) begin

@@ -3,7 +3,7 @@
 // VSYNC PIN: ICE 36
 // RED: ICE (MSB to LSB) 45 47 2 4
 // GREEN: ICE (MSB to LSB) 31 34 38 43
-// BLUE: ICE (MSB to LSB) 44? 46 48 3
+// BLUE: ICE (MSB to LSB) 44_G6 46 48 3
 // VCC: 
 
 
@@ -12,7 +12,7 @@ output logic ICE_42, // HSYNC
 output logic ICE_36, // VSYNC
 output logic ICE_45, // R
 output logic ICE_31, // G
-output logic ICE_46, // B
+output logic ICE_44_G6, // B
 output logic ICE_27 //pll
 );
 
@@ -34,7 +34,7 @@ vga u0(
 .vsync(ICE_36),
 .x_pos(x_pos),
 .y_pos(y_pos),
-.color({ICE_45, ICE_31, ICE_46})
+.color({ICE_45, ICE_31, ICE_44_G6})
 );
 
 vga_test u1(
