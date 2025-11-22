@@ -26,6 +26,7 @@ module collision(
 	assign out = (bird_y - `BIRD_SZ < low) || (bird_y + `BIRD_SZ >= high);
 endmodule
 
+//computes low and high for current value of x
 module cur_bound(
 	input seq_t seq,
 	input int x,
@@ -45,6 +46,7 @@ module cur_bound(
 	end
 endmodule
 
+//random number generator
 module lfsr(
 	input logic clk,rst,press,
 	output int out
