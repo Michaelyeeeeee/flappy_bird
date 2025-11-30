@@ -1,9 +1,5 @@
 /*
 	TODO:
-- might have signed issue when generating next pipe
-- implement scoring
-- latch the button press
-- figure out top module stuff (???)
 - test it
 */
 
@@ -49,9 +45,9 @@ endmodule
 //random number generator
 module lfsr(
 	input logic clk,rst,press,
-	output int out
+	output logic[31:0] out
 );
-	int Q;
+	logic[31:0] Q;
 	logic feedback;
 	always_ff @(posedge clk,posedge rst) begin
 		if(rst)        Q <= 32'h76767676;
@@ -63,22 +59,41 @@ module lfsr(
 endmodule
 
 module game_state(
-	input logic clk,rst,press
+	input logic clk,rst,press,
+        output int ox,oy,oscore,
+        output seq_t oseq
 );
 	int rng;
 	lfsr( .clk(clk), .rst(rst), .press(press), .out(rng) );
 
-	int Q,x,y,v;
-	int nQ,nx,ny,nv;
+        // Q is the state
+        //   0 - bird "frozen", pressing button will jump and move to Q = 1
+        //   1 - game in progress
+        //   2 - death, game "frozen" with bird's final position, must reset
+	// x is the horizontal position, wrapping around modulo the
+        // distance between adjacent pipes
+        //   (the first few pipes are 0, which represents no pipe )
+        //   a collision first occurs at x = 0, up to pipe_width + 2*bird_sz
+        // y is the vertical position of the center of the bird
+        // v is the vertical velocity
+        // score is the total number of pipes passed
+        int Q,x,y,v,score;
+	int nQ,nx,ny,nv,nscore;
 
 	seq_t seq,nseq;
+
+        logic press_last;
+        logic press_edge;
+        assign press_edge = press && ~press_last;
 	
 	always_ff @(posedge clk,posedge rst) begin
 		if(rst) begin
-			{Q,x,y,v} <= {0,0,200,0};
+			{Q,x,y,v,score} <= {0,0,200,0,0};
+                        press_last <= 0;
 			for( int i = 0; i < `NUM_PIPES; i++ ) seq[i] <= 0;
 		end else begin
-			{Q,x,y,v} <= {nQ,nx,ny,nv};
+			{Q,x,y,v,score} <= {nQ,nx,ny,nv,nscore};
+                        press_last <= press;
 			for( int i = 0; i < `NUM_PIPES; i++ ) seq[i] <= nseq[i];
 		end
 	end
@@ -90,10 +105,10 @@ module game_state(
 	collision inst1( .low(low), .high(high), .bird_y(y), .out(death) );
 
 	always_comb begin
-		{nQ,nx,ny,nv} = {Q,x,y,v};
+		{nQ,nx,ny,nv,nscore} = {Q,x,y,v,score};
 		for( int i = 0; i < `NUM_PIPES; i++ ) nseq[i] = seq[i];
 		
-		if( Q == 0 && press ) begin
+		if( Q == 0 && press_edge ) begin
 			nQ = 1;
 			nv = `BIRD_JMP;
 		end
@@ -101,17 +116,28 @@ module game_state(
 		if( death ) nQ = 2;
 
 		if( Q == 1 && !death ) begin
-			if( press ) nv = `BIRD_JMP;
-			else        nv = v + `BIRD_ACC;
+                        //update v
+			if( press_edge ) nv = `BIRD_JMP;
+			else             nv = v + `BIRD_ACC;
 
+                        //update y
 			ny = y + v;
+
+                        //update x
 			if( x < `PIPE_GAP-1 ) nx = x + 1;
 			else begin
+                                //update new pipes
 				nx = 0;
 				for( int i = 1; i < `NUM_PIPES; i++ ) nseq[i-1] = seq[i];
 				nseq[`NUM_PIPES-1] = (rng % (`SKY - `PIPE_ALLOW - `PIPE_ALLOW)) + `PIPE_ALLOW;
 			end
-		end
 
+                        //update score
+                        if( x == `PIPE_WIDTH + `BIRD_SZ + `BIRD_SZ )
+                        if( !(seq[0] == 0) ) nscore = score + 1;
+		end
 	end
+
+        assign {ox,oy,oscore} = {x,y,score};
+        assign oseq = seq;
 endmodule
