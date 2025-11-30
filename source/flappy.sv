@@ -22,7 +22,7 @@ module collision(
 	assign out = (bird_y - `BIRD_SZ < low) || (bird_y + `BIRD_SZ >= high);
 endmodule
 
-//computes low and high for current value of x
+//computes low and high bounds for the bird y position for current value of x
 module cur_bound(
 	input seq_t seq,
 	input int x,
@@ -64,7 +64,7 @@ module game_state(
         output seq_t oseq
 );
 	int rng;
-	lfsr( .clk(clk), .rst(rst), .press(press), .out(rng) );
+	lfsr inst2( .clk(clk), .rst(rst), .press(press), .out(rng) );
 
         // Q is the state
         //   0 - bird "frozen", pressing button will jump and move to Q = 1
@@ -88,7 +88,7 @@ module game_state(
 	
 	always_ff @(posedge clk,posedge rst) begin
 		if(rst) begin
-			{Q,x,y,v,score} <= {0,0,200,0,0};
+                        Q <= 0; x <= 0; y <= 32'sd200; v <= 0; score <= 0;
                         press_last <= 0;
 			for( int i = 0; i < `NUM_PIPES; i++ ) seq[i] <= 0;
 		end else begin
