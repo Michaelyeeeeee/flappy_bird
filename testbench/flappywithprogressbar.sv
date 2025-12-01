@@ -101,7 +101,6 @@ module flappy_game (
     // This runs 60 times a second to update positions
     integer i;
     logic [18:0] tick_global;
-    //logic [9:0] tick_cycle;
     
     always_ff @(posedge clk) begin
         if (game_tick) begin
@@ -121,11 +120,8 @@ module flappy_game (
                 end
                 STATE_PLAY: begin
                     //add 1 to progress bar
-                    //tick_cycle <= tick_cycle + 1;
-                    //if( tick_cycle == `PROGRESS_SLOWDOWN ) begin 
-                        //tick_cycle <= 1;
-                        tick_global <= tick_global + 1;
-                    //end
+                    tick_global <= tick_global + 1;
+
                     // Move Bird
                     if (jump_pending) bird_v <= `JUMP_SPEED; 
                     else if (bird_v < `FALL_SPEED) bird_v <= bird_v + 1; // Gravity
@@ -189,6 +185,7 @@ module flappy_game (
         if (x_val >= `BIRD_X + 2 && x_val < `BIRD_X + 14 && y_val >= bird_y + 12 && y_val < bird_y + 20)
             bird_wing_p1 <= 1;
 
+        // Display the Progress Bar
         progress_bar <= 0;
         if( y_val < 20 && x_val < 5 + (tick_global >> 2) )
             progress_bar <= 1;
