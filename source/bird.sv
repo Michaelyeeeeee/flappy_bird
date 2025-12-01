@@ -40,30 +40,27 @@ module bird(
         jump_pulse <= jump && !jump_prev;
     end
     
-    always_ff @(posedge clk) begin
-        if (vsync) begin
-            
-            logic [9:0] next_y;
-            
-            if (jump_pulse) begin
-                next_y = bird_y_reg - JUMP_DIST; // Move up
-            end 
-            else begin
-                next_y = bird_y_reg + DOWN_VELOCITY; // Move down
-            end
-            
-            // check if the calculated position is reaching ceiling
-            if (next_y[9] == 1'b1 || next_y < 10'd0) begin 
-                next_y = 10'd0;
-            end
-            
-            // check if position is reaching floor
-            else if (next_y > (SCREEN_HEIGHT - BIRD_SIZE)) begin
-                next_y = SCREEN_HEIGHT - BIRD_SIZE;
-            end
-            
-            bird_y_reg <= next_y;
+    always_ff @(posedge vsync) begin
+        logic [9:0] next_y;
+        
+        if (jump_pulse) begin
+            next_y = bird_y_reg - JUMP_DIST; // Move up
+        end 
+        else begin
+            next_y = bird_y_reg + DOWN_VELOCITY; // Move down
         end
+        
+        // check if the calculated position is reaching ceiling
+        if (next_y[9] == 1'b1 || next_y < 10'd0) begin 
+            next_y = 10'd0;
+        end
+        
+        // check if position is reaching floor
+        else if (next_y > (SCREEN_HEIGHT - BIRD_SIZE)) begin
+            next_y = SCREEN_HEIGHT - BIRD_SIZE;
+        end
+        
+        bird_y_reg <= next_y;
     end
     
     assign bird_y_out = bird_y_reg;
