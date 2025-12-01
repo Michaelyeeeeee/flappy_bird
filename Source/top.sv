@@ -37,7 +37,6 @@ module top (
     logic [2:0] rgb;
     flappy_game game_inst (
         .clk(pll_clk),
-        .vsync(vsync), 
         .flap_pulse(flap_pulse),
         .btn_held(btn_held), 
         .x_val(x), 
