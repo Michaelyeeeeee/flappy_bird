@@ -15,14 +15,11 @@ output logic ICE_36, // VSYNC
 output logic ICE_45, // R
 output logic ICE_31, // G
 output logic ICE_44_G6, // B
-output logic ICE_27 //pll
 );
 
 logic [2:0] pipe_rgb_data;
 logic [9:0] x_pos, y_pos;
 logic pll;
-
-assign ICE_27 = pll;
 
 vga_pll vga_clk(
     .VGA_CLK(pll)
