@@ -6,14 +6,14 @@ module vga_counter(
     output logic [9:0] y_val,
     output logic video_on    
 );
-    parameter X_MAX         = 10'd639;  // 640th horizontal bit
-    parameter Y_MAX         = 10'd479;   // 480th vertical bit
-    parameter H_SYNC_START  = 10'd656;  // hsync start bit
-    parameter H_SYNC_END    = 10'd751;  // hsync stop bit (inclusive)
-    parameter V_SYNC_START  = 10'd490;  // vsync start bit
-    parameter V_SYNC_END    = 10'd491;  // vsync stop bit (inclusive)
-    parameter X_SIZE        = 10'd799;  // maximum x size
-    parameter Y_SIZE        = 10'd524;  // maximum y size
+    parameter X_MAX = 10'd639;  // 640th horizontal bit
+    parameter Y_MAX = 10'd479;   // 480th vertical bit
+    parameter H_SYNC_START = 10'd656;  // hsync start bit
+    parameter H_SYNC_END = 10'd751;  // hsync stop bit (inclusive)
+    parameter V_SYNC_START = 10'd490;  // vsync start bit
+    parameter V_SYNC_END = 10'd491;  // vsync stop bit (inclusive)
+    parameter X_SIZE = 10'd799;  // maximum x size
+    parameter Y_SIZE = 10'd524;  // maximum y size
 
 
     logic [9:0] h_cnt;

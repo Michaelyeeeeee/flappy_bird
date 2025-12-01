@@ -1,5 +1,5 @@
 module button_sync_debounce #(
-    parameter integer DEBOUNCE_TICKS = 250000 
+    parameter DEBOUNCE_TICKS = 18'd250000 
 )(
     input  logic clk,
     input  logic btn_n_raw, 
