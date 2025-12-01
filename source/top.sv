@@ -17,7 +17,9 @@ output logic ICE_31, // G
 output logic ICE_44_G6, // B
 );
 
-logic [2:0] pipe_rgb_data;
+// logic [2:0] pipe_rgb_data;
+logic [2:0] bird_rgb_data;
+logic [9:0] bird_y_pos;
 logic [9:0] x_pos, y_pos;
 logic pll;
 
@@ -25,18 +27,29 @@ vga_pll vga_clk(
     .VGA_CLK(pll)
 );
 
+/*
 pipe pipe_inst (
     .clk(pll),          // 25MHz Clock
     .vsync(ICE_36),     // Use the VSYNC signal to time movement (60fps)
     .x_pos(x_pos),      // Current X from VGA module
     .y_pos(y_pos),      // Current Y from VGA module
     .pipe_rgb(pipe_rgb_data) // Output color
+); */
+
+bird bird_inst (
+    .clk(pll), 
+    .vsync(ICE_36),           // Frame timing from VGA
+    .jump(ICE_PB),            // Button input
+    .x_pos(x_pos), 
+    .y_pos(y_pos), 
+    .bird_rgb(bird_rgb_data), // Output color (Yellow or Blue)
+    .bird_y_out(bird_y_pos)   // Output Y position
 );
 
 vga vga_inst(
     .game_clk(),
     .pll(pll),
-    .rgb(pipe_rgb_data),
+    .rgb(bird_rgb_data),
     .hsync(ICE_42),
     .vsync(ICE_36),
     .x_pos(x_pos),
