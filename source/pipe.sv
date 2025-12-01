@@ -24,6 +24,10 @@ module pipe (
     localparam SCREEN_W     = 10'd640;
     localparam START_OFFSET = 11'd650; 
 
+    localparam TOTAL_SPAN = NUM_PIPES * PIPE_CYCLE; // 900
+    
+    localparam START_POS_RIGHT = 11'd750;
+
     // Movement Logic
 	// location of x of each pipe (signed to allow off screen)
     logic signed [11:0] pipe_x [0:NUM_PIPES-1];
