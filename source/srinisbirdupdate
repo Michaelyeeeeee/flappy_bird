@@ -1,4 +1,4 @@
-module vga_game_top(
+/*module vga_game_top(
     input logic clk,
     input logic button,
     output logic [2:0] color
@@ -42,4 +42,175 @@ module vga_game_top(
     end
 
 
+endmodule
+*/
+`default_nettype none
+/*`define BIRD_SZ     15
+module vga_game_top(
+    input logic clk,
+    input logic button,
+    output logic [2:0] color
+);
+    parameter X_SIZE = 10'd799;  // maximum x size
+    parameter Y_SIZE = 10'd524;  // maximum y size
+
+    logic [9:0] x = 10'd0;
+    logic [9:0] y = 10'd0;
+    logic buttonpress = 1'b0;
+
+    //logic button_last,press_edge;
+    int jump_clock;
+
+    int birdy = 32'sd225;
+    int nbirdy;
+
+    always_ff @ (posedge clk) begin
+        if( jump_clock > 0 ) jump_clock--;
+
+        if (((y > (birdy - `BIRD_SZ)) && (y < (birdy + `BIRD_SZ))) && ((x < 170) && (x > 147)) )begin
+            color <= 3'b110;
+        end else begin
+            color <= 3'b011;
+        end
+        
+        if (x == X_SIZE) begin
+            if (y == Y_SIZE) begin
+                y <= 10'd0;
+            end else begin
+                y <= y + 10'd1;
+            end
+        end
+        if (x == X_SIZE) begin
+            x <= 10'd0;
+        end else begin
+            x <= x + 10'd1;
+        end
+
+    end
+
+    always_ff @ (negedge button) begin
+        nbirdy <= birdy + 20;
+    end
+
+
 endmodule 
+*/
+
+
+module vga_game_top(
+    input  logic clk,         // 48 MHz
+    input  logic button,      // ACTIVE LOW
+    output logic [2:0] color
+);
+
+    // =============================================================
+    // VGA SCANNING
+    // =============================================================
+    logic [9:0] x = 10'd0;
+    logic [9:0] y = 10'd0;
+
+    // =============================================================
+    // BUTTON SYNC + DEBOUNCE + EDGE DETECT
+    // =============================================================
+    logic b0, b1;
+
+    always_ff @(posedge clk) begin
+        b0 <= button;
+        b1 <= b0;
+    end
+
+    logic [15:0] db = 0;
+    logic btn_state = 1;
+    logic btn_prev  = 1;
+    logic press_edge = 0;
+
+    always_ff @(posedge clk) begin
+        if (b1 != btn_state) begin
+            db <= db + 1;
+            if (db == 16'd48000) begin       // ~1ms debounce at 48 MHz
+                btn_state <= b1;
+                db <= 0;
+            end
+        end else begin
+            db <= 0;
+        end
+
+        btn_prev <= btn_state;
+        press_edge <= (btn_prev == 1 && btn_state == 0); // falling edge
+    end
+
+    // =============================================================
+    // PHYSICS CLOCK (~45 Hz)
+    // =============================================================
+    logic [19:0] phy_div = 0;
+    logic slow_tick;
+
+    always_ff @(posedge clk) begin
+        phy_div <= phy_div + 1;
+        slow_tick <= (phy_div == 0);
+    end
+
+    // =============================================================
+    // BIRD PHYSICS
+    // =============================================================
+    logic [10:0] bird_y = 11'd210;   // BIRD STARTS AT 210 → 240
+
+    logic jump_request = 0;
+
+    always_ff @(posedge clk) begin
+        if (press_edge)
+            jump_request <= 1;
+    end
+
+    always_ff @(posedge clk) begin
+        if (slow_tick) begin
+
+            // JUMP = 12 pixels up
+            if (jump_request) begin
+                if (bird_y > 12)
+                    bird_y <= bird_y - 12;
+                else
+                    bird_y <= 0;
+
+                jump_request <= 0;
+            end
+            else begin
+                // GRAVITY = 1 pixel down
+                bird_y <= bird_y + 1;
+            end
+
+            // If bird falls off bottom → reset to starting location
+            if (bird_y > 480)
+                bird_y <= 210;    // reset to original place
+        end
+    end
+
+    // =============================================================
+    // VGA DRAWING (bird 23×30)
+    // =============================================================
+    always_ff @(posedge clk) begin
+        if ((y >= bird_y) &&
+            (y <  bird_y + 30) &&
+            (x >= 147) &&
+            (x <  170)) begin
+
+            color <= 3'b110;   // bird color
+
+        end else begin
+            color <= 3'b011;   // background color
+        end
+
+        // VGA counters
+        if (x == 10'd799) begin
+            x <= 0;
+            if (y == 10'd524)
+                y <= 0;
+            else
+                y <= y + 1;
+        end else begin
+            x <= x + 1;
+        end
+    end
+
+endmodule
+
