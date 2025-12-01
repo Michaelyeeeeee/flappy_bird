@@ -15,7 +15,7 @@ module display(
     output logic [2:0]  final_rgb,   // Final color to VGA
     output logic        game_running // Control signal to halt pipe/bird movement
 );
-    localparam BG_COLOR      = 3'b001; // Blue (Default background color from modules)
+    localparam BG_COLOR      = 3'b001; // Blue 
 
     /// state of display
     typedef enum logic {
@@ -60,38 +60,14 @@ module display(
     always_comb begin
         final_rgb = BG_COLOR; 
         
-        if (game_state == STATE_FROZEN) begin
-            if (is_bird & is_pipe) begin
-                final_rgb = 3'b110; // Red flash on the collision pixel
-            end
-            // In the frozen state, the bird_rgb and pipe_rgb still contain the last frame's data
-            // (even if the movement logic is halted by the 'game_running' signal).
-            else if (is_bird) begin
-                final_rgb = bird_rgb;
-            end
-            else if (is_pipe) begin
-                final_rgb = pipe_rgb;
-            end
-            else begin
-                final_rgb = BG_COLOR;
-            end
-
-        end
-        // Priority 2: Running Game Display
-        else begin 
-            // Bird takes priority over Pipe if they overlap (not ideal for collision, 
-            // but necessary for drawing priority in a non-collided state)
-            if (is_bird) begin
-                final_rgb = bird_rgb;
-            end 
-            // Pipe is drawn if Bird is not
-            else if (is_pipe) begin
-                final_rgb = pipe_rgb;
-            end 
-            // Default Background
-            else begin
-                final_rgb = BG_COLOR;
-            end
+        if (is_bird) begin
+            final_rgb = bird_rgb;
+        end 
+        else if (is_pipe) begin
+            final_rgb = pipe_rgb;
+        end 
+        else begin
+            final_rgb = BG_COLOR;
         end
     end
 
