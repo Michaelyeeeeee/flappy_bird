@@ -1,9 +1,9 @@
 // flappy_game.sv
-// My Flappy Bird game logic
+// Flappy Bird game logic file
 // This module handles the movement, collisions, and drawing the bird/pipes
 `timescale 1ns/1ps
 
-// --- Game Settings ---
+// Our game rendering sizes for different thigns
 `define BIRD_X      147
 `define BIRD_W      23
 `define BIRD_H      30
@@ -29,9 +29,7 @@ module flappy_game (
     output logic [2:0] rgb_out
 );
 
-    // --- Clock Divider ---
-    // We need to slow down the 25MHz clock to about 60 times a second
-    // otherwise the game runs way too fast.
+    /// clock divider to slow down the game logic hz
     logic [18:0] tick_cnt;
     logic game_tick; 
     always_ff @(posedge clk) begin
@@ -101,6 +99,7 @@ module flappy_game (
     // This runs 60 times a second to update positions
     integer i;
     logic [18:0] tick_global;
+    //logic [9:0] tick_cycle;
     
     always_ff @(posedge clk) begin
         if (game_tick) begin
@@ -120,8 +119,11 @@ module flappy_game (
                 end
                 STATE_PLAY: begin
                     //add 1 to progress bar
-                    tick_global <= tick_global + 1;
-
+                    //tick_cycle <= tick_cycle + 1;
+                    //if( tick_cycle == `PROGRESS_SLOWDOWN ) begin 
+                        //tick_cycle <= 1;
+                        tick_global <= tick_global + 1;
+                    //end
                     // Move Bird
                     if (jump_pending) bird_v <= `JUMP_SPEED; 
                     else if (bird_v < `FALL_SPEED) bird_v <= bird_v + 1; // Gravity
@@ -185,7 +187,6 @@ module flappy_game (
         if (x_val >= `BIRD_X + 2 && x_val < `BIRD_X + 14 && y_val >= bird_y + 12 && y_val < bird_y + 20)
             bird_wing_p1 <= 1;
 
-        // Display the Progress Bar
         progress_bar <= 0;
         if( y_val < 20 && x_val < 5 + (tick_global >> 2) )
             progress_bar <= 1;
