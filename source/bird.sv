@@ -35,7 +35,7 @@ module bird(
     logic jump_prev;
     logic jump_pulse;
     
-    always_ff @(posedge clk) begin
+    always_ff @(posedge vsync) begin
         jump_prev <= jump;
         jump_pulse <= jump && !jump_prev;
     end
