@@ -41,7 +41,7 @@ module pipe (
     initial begin
         int i;
         for (i = 0; i < NUM_PIPES; i++) begin
-            pipe_x[i] = START_OFFSET + (i * PIPE_CYCLE);
+            pipe_x[i] = START_POS_RIGHT + (TOTAL_SPAN) - ( (i + 1) * PIPE_CYCLE );
         end
     end
 
