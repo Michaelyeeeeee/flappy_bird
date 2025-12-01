@@ -62,7 +62,7 @@ module display(
         
         if (game_state == STATE_FROZEN) begin
             if (is_bird & is_pipe) begin
-                final_rgb = CRASH_COLOR; // Red flash on the collision pixel
+                final_rgb = 3'b110; // Red flash on the collision pixel
             end
             // In the frozen state, the bird_rgb and pipe_rgb still contain the last frame's data
             // (even if the movement logic is halted by the 'game_running' signal).
