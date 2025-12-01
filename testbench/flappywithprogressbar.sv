@@ -99,7 +99,6 @@ module flappy_game (
     // This runs 60 times a second to update positions
     integer i;
     logic [18:0] tick_global;
-    //logic [9:0] tick_cycle;
     
     always_ff @(posedge clk) begin
         if (game_tick) begin
@@ -110,7 +109,6 @@ module flappy_game (
                 STATE_READY: begin
                     // Reset everything to start position
                     tick_global <= 0;
-                    //tick_cycle <= 0;
                     bird_y <= 220; bird_v <= 0;
                     pipe_x[0] <= 12'd500; pipe_x[1] <= 12'd800; pipe_x[2] <= 12'd1100;
                     pipe_gap_y[0] <= 11'd150; pipe_gap_y[1] <= 11'd250; pipe_gap_y[2] <= 11'd100;
@@ -119,10 +117,7 @@ module flappy_game (
                 end
                 STATE_PLAY: begin
                     //add 1 to progress bar
-                    //tick_cycle <= tick_cycle + 1;
-                    //if( tick_cycle == `PROGRESS_SLOWDOWN ) begin 
-                        //tick_cycle <= 1;
-                        tick_global <= tick_global + 1;
+                    tick_global <= tick_global + 1;
                     //end
                     // Move Bird
                     if (jump_pending) bird_v <= `JUMP_SPEED; 
