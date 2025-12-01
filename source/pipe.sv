@@ -9,14 +9,14 @@ module pipe (
     output logic [2:0]  pipe_rgb    // Output Color (000 or 010)
 );
     localparam PIPE_WIDTH   = 10'd60;
-    localparam PIPE_GAP     = 10'd45;   // Vertical opening size
+    localparam PIPE_GAP     = 10'd120;   // Vertical opening size
     localparam PIPE_DIST    = 10'd240;  // Horizontal space between pipes
     localparam NUM_PIPES    = 3;        // 3 pipes is enough to cover 640px width + buffers
     localparam PIPE_SPEED   = 10'd2;    // Pixels moved per frame
     
     localparam GAP_CENTER   = 10'd240;
-    localparam GAP_TOP      = GAP_CENTER - (PIPE_GAP / 2); // ~218
-    localparam GAP_BOT      = GAP_CENTER + (PIPE_GAP / 2); // ~262
+    localparam GAP_TOP      = GAP_CENTER - (PIPE_GAP / 2); // 180
+    localparam GAP_BOT      = GAP_CENTER + (PIPE_GAP / 2); // 300
     
     // Pipe Spacing logic: (Width 60 + Gap 240 = 300 pixels cycle)
     localparam PIPE_CYCLE   = PIPE_WIDTH + PIPE_DIST;
@@ -26,7 +26,7 @@ module pipe (
 
     // Movement Logic
 	// location of x of each pipe (signed to allow off screen)
-    logic signed [10:0] pipe_x [0:NUM_PIPES-1];
+    logic signed [11:0] pipe_x [0:NUM_PIPES-1];
     
     // Detect VSYNC edge to trigger movement once per frame (60Hz)
     logic vsync_prev;
