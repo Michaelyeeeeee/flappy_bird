@@ -8,6 +8,7 @@
 
 
 module top (
+input ICE_PB,
 output logic ICE_42, // HSYNC
 output logic ICE_36, // VSYNC
 output logic ICE_45, // R
@@ -36,9 +37,19 @@ vga u0(
 .y_pos(y_pos),
 .color({ICE_45, ICE_31, ICE_44_G6})
 );
-
+/*
 vga_test u1(
 .clk(pll),
+.button(ICE_PB),
 .color(c)
 );
+*/
+
+vga_game_top u1(
+.clk(pll),
+.button(ICE_PB),
+.color(c)
+);
+
+
 endmodule
