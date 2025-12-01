@@ -1,3 +1,4 @@
+`default_nettype none
 /* Horizontal and vertical counter for VGA
  *
  * input clk - PLL clock at 25MHz

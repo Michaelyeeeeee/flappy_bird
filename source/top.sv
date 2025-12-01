@@ -1,3 +1,4 @@
+`default_nettype none
 // ON LED SIDE:
 // HSYNC PIN: ICE 42
 // VSYNC PIN: ICE 36
@@ -17,7 +18,7 @@ output logic ICE_44_G6, // B
 output logic ICE_27 //pll
 );
 
-logic [2:0] c;
+logic [2:0] pipe_rgb_data;
 logic [9:0] x_pos, y_pos;
 logic pll;
 
@@ -27,29 +28,23 @@ vga_pll vga_clk(
     .VGA_CLK(pll)
 );
 
-vga u0(
-.game_clk(),
-.pll(pll),
-.rgb(c),
-.hsync(ICE_42),
-.vsync(ICE_36),
-.x_pos(x_pos),
-.y_pos(y_pos),
-.color({ICE_45, ICE_31, ICE_44_G6})
-);
-/*
-vga_test u1(
-.clk(pll),
-.button(ICE_PB),
-.color(c)
-);
-*/
-
-vga_game_top u1(
-.clk(pll),
-.button(ICE_PB),
-.color(c)
+pipe pipe_inst (
+    .clk(pll),          // 25MHz Clock
+    .vsync(ICE_36),     // Use the VSYNC signal to time movement (60fps)
+    .x_pos(x_pos),      // Current X from VGA module
+    .y_pos(y_pos),      // Current Y from VGA module
+    .pipe_rgb(pipe_rgb_data) // Output color
 );
 
+vga vga_inst(
+    .game_clk(),
+    .pll(pll),
+    .rgb(pipe_rgb_data),
+    .hsync(ICE_42),
+    .vsync(ICE_36),
+    .x_pos(x_pos),
+    .y_pos(y_pos),
+    .color({ICE_45, ICE_31, ICE_44_G6})
+);
 
 endmodule

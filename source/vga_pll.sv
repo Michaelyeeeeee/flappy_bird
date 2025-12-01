@@ -1,3 +1,4 @@
+`default_nettype none
 // Taken from Brightspace
 
 module vga_pll (

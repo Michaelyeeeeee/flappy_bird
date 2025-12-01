@@ -1,3 +1,4 @@
+`default_nettype none
 /* Color for VGA
  *
  * input x_val, y_val - current position of VGA counter
