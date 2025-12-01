@@ -16,7 +16,7 @@
 
 // Speed settings
 `define FALL_SPEED  4
-`define JUMP_SPEED  -10
+`define JUMP_SPEED  -9
 `define PIPE_SPEED  4
 `define PROGRESS_SLOWDOWN 10
 
@@ -42,8 +42,7 @@ module flappy_game (
         end
     end
 
-    // --- Random Number Generator ---
-    // Creates random numbers for the pipe heights using some bit shifts
+    // random number generator for the pipes w seed
     logic [7:0] random_num = 8'hAB;
     logic [10:0] next_random_gap;
     always_ff @(posedge clk) begin
@@ -51,15 +50,16 @@ module flappy_game (
         next_random_gap <= 11'd80 + {3'b0, random_num}; // Make sure gap isn't off screen
     end
 
-    // --- Button Input ---
-    // Save the button press so we don't miss it between game ticks
+    // make sure we catch the button press
+    // sometimes the game tick misses the button so we save it here
+    //metastability? smth smth
     logic jump_pending;
     always_ff @(posedge clk) begin
         if (flap_pulse) jump_pending <= 1;
         else if (game_tick) jump_pending <= 0;
     end
 
-    // --- Game States ---
+    // SStatemachine states for gameplay
     // 0 = Ready, 1 = Playing, 2 = Game Over
     typedef enum logic [1:0] { STATE_READY, STATE_PLAY, STATE_DEAD } state_t;
     state_t state = STATE_READY;
@@ -70,20 +70,19 @@ module flappy_game (
     logic signed [11:0] pipe_x [0:2];  
     logic signed [10:0] pipe_gap_y [0:2]; 
     
-    // --- Collision Check ---
-    // Check if the bird hit anything.
-    // We check one pipe at a time to keep it simple for the FPGA.
+    // collision detection logic
+    // check one pipe at a time otherwise cant run at 25mhz for vga board too slow smh
     logic [1:0] check_idx; 
     logic collision_detected;
 
     always_ff @(posedge clk) begin
-        // Cycle through the 3 pipes
+        // Cycling through the 3 pipes
         if (check_idx == 2) check_idx <= 0; else check_idx <= check_idx + 1;
 
         if (state == STATE_READY) collision_detected <= 0;
         else if (state == STATE_PLAY) begin
-            // Check if bird hit floor or ceiling
-            if (bird_y < 0 || bird_y > 450) collision_detected <= 1;
+            // Check if bird hit floor no ceiling check cuz birds can fly
+            if (bird_y > 450) collision_detected <= 1;
             
             // Check if bird is inside a pipe
             if ( (pipe_x[check_idx] >= 12'(`COL_MIN_X)) && (pipe_x[check_idx] <= 12'(`COL_MAX_X)) ) begin
@@ -95,10 +94,10 @@ module flappy_game (
         end
     end
 
-    // --- Main Game Loop ---
-    // This runs 60 times a second to update positions
+    // main loop @ 60hz
     integer i;
     logic [18:0] tick_global;
+    //logic [9:0] tick_cycle;
     
     always_ff @(posedge clk) begin
         if (game_tick) begin
@@ -109,6 +108,7 @@ module flappy_game (
                 STATE_READY: begin
                     // Reset everything to start position
                     tick_global <= 0;
+                    //tick_cycle <= 0;
                     bird_y <= 220; bird_v <= 0;
                     pipe_x[0] <= 12'd500; pipe_x[1] <= 12'd800; pipe_x[2] <= 12'd1100;
                     pipe_gap_y[0] <= 11'd150; pipe_gap_y[1] <= 11'd250; pipe_gap_y[2] <= 11'd100;
@@ -117,7 +117,10 @@ module flappy_game (
                 end
                 STATE_PLAY: begin
                     //add 1 to progress bar
-                    tick_global <= tick_global + 1;
+                    //tick_cycle <= tick_cycle + 1;
+                    //if( tick_cycle == `PROGRESS_SLOWDOWN ) begin 
+                        //tick_cycle <= 1;
+                        tick_global <= tick_global + 1;
                     //end
                     // Move Bird
                     if (jump_pending) bird_v <= `JUMP_SPEED; 
@@ -145,11 +148,12 @@ module flappy_game (
         end
     end
 
-    // --- Drawing Logic ---
-    // Figure out which pixel is what color
+
+    // drawing logic for all the things
     logic [2:0] x_hit_pipe;
     
-    // Registers to store what we are drawing
+    // Storeing differet colors for things cuz bird body can be either red or yellow depending on game stame
+
     logic bird_body_p1;
     logic bird_eye_p1;
     logic bird_wing_p1;
@@ -161,23 +165,23 @@ module flappy_game (
     logic progress_bar;
 
     always_ff @(posedge clk) begin
-        // Step 1: Check X coordinates
+        // check x coordinates fpr pipe
         x_hit_pipe <= 0;
         if ( ($signed({2'b0, x_val}) >= pipe_x[0]) && ($signed({2'b0, x_val}) < pipe_x[0] + 12'(`PIPE_W)) ) x_hit_pipe[0] <= 1;
         if ( ($signed({2'b0, x_val}) >= pipe_x[1]) && ($signed({2'b0, x_val}) < pipe_x[1] + 12'(`PIPE_W)) ) x_hit_pipe[1] <= 1;
         if ( ($signed({2'b0, x_val}) >= pipe_x[2]) && ($signed({2'b0, x_val}) < pipe_x[2] + 12'(`PIPE_W)) ) x_hit_pipe[2] <= 1;
 
-        // Check if pixel is part of bird body
+        // displaying birby
         bird_body_p1 <= 0;
         if (x_val >= `BIRD_X && x_val < `BIRD_X + `BIRD_W && y_val >= bird_y && y_val < bird_y + `BIRD_H) 
             bird_body_p1 <= 1;
 
-        // Check if pixel is the eye
+        // bird eye
         bird_eye_p1 <= 0;
         if (x_val >= `BIRD_X + 18 && x_val < `BIRD_X + 20 && y_val >= bird_y + 5 && y_val < bird_y + 8)
             bird_eye_p1 <= 1;
 
-        // Check if pixel is the wing
+        // white rectangle for wing
         bird_wing_p1 <= 0;
         if (x_val >= `BIRD_X + 2 && x_val < `BIRD_X + 14 && y_val >= bird_y + 12 && y_val < bird_y + 20)
             bird_wing_p1 <= 1;
@@ -186,18 +190,17 @@ module flappy_game (
         if( y_val < 20 && x_val < 5 + (tick_global >> 2) )
             progress_bar <= 1;
 
-        // Step 2: Check Y coordinates and pass data along
         pipe_pixel_p2 <= 0;
         bird_body_p2 <= bird_body_p1;
         bird_eye_p2  <= bird_eye_p1;
         bird_wing_p2 <= bird_wing_p1;
 
-        // Draw pipe green if we are NOT in the gap
+        //drawing pipe based on gap gap should be background color
         if (x_hit_pipe[0]) begin if (y_val < pipe_gap_y[0] || y_val > pipe_gap_y[0] + `GAP_SIZE) pipe_pixel_p2 <= 1; end
         else if (x_hit_pipe[1]) begin if (y_val < pipe_gap_y[1] || y_val > pipe_gap_y[1] + `GAP_SIZE) pipe_pixel_p2 <= 1; end
         else if (x_hit_pipe[2]) begin if (y_val < pipe_gap_y[2] || y_val > pipe_gap_y[2] + `GAP_SIZE) pipe_pixel_p2 <= 1; end
 
-        // Step 3: Pick the final color
+        //colors
         if( progress_bar ) rgb_out <= 3'b111; //white progress bar
         else if (bird_body_p2) begin
             // Eye goes on top, then wing, then body
