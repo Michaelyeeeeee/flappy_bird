@@ -1,6 +1,3 @@
-// vga_counter.sv
-`timescale 1ns/1ps
-
 module vga_counter(
     input  logic clk,
     output logic hsync,      
@@ -16,7 +13,7 @@ module vga_counter(
     logic [9:0] h_cnt;
     logic [9:0] v_cnt;
 
-    // Counters
+    // counters
     always_ff @(posedge clk) begin
         if (h_cnt == H_TOTAL - 1) begin
             h_cnt <= 0;
@@ -27,7 +24,7 @@ module vga_counter(
         end
     end
 
-    // Outputs (Registered)
+    // output
     always_ff @(posedge clk) begin
         hsync <= !((h_cnt >= 656) && (h_cnt < 752));
         vsync <= !((v_cnt >= 490) && (v_cnt < 492));

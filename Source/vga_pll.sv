@@ -1,4 +1,3 @@
-// vga_pll.sv
 module vga_pll (
     output logic VGA_CLK
 );

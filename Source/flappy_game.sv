@@ -1,7 +1,3 @@
-// flappy_game.sv
-// UPDATED RENDERER: Added Black Eye and White Wing to the bird.
-`timescale 1ns/1ps
-
 module flappy_game (
     input  logic clk,
     input  logic vsync,       

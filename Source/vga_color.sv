@@ -3,9 +3,6 @@
 // Input x_val, y_val - current position of VGA counter
 // Input rgb - color from game logic
 // Output color - display color
-
-`timescale 1ns/1ps
-
 module vga_color (
     input  logic clk, // VGA clock (25MHz)
     input  logic [2:0]  rgb_in, // input from game logic

@@ -1,6 +1,3 @@
-// button_sync_debounce.sv
-`timescale 1ns/1ps
-
 module button_sync_debounce #(
     parameter integer DEBOUNCE_TICKS = 250000 
 )(
