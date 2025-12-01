@@ -9,24 +9,25 @@ module game_top(
     logic [9:0] y = 10'd0;
 
     always_ff @ (posedge clk) begin
-        if ((y < 100 - x)) begin
-            color = 3'b001;
-        end else begin
+         if ((y < 50) && x < 50) begin
             color = 3'b010;
+        end else begin
+            color = 3'b011;
         end
         
+        if (x == X_SIZE) begin
+            if (y == Y_SIZE) begin
+                y <= 10'd0;
+            end else begin
+                y <= y + 10'd1;
+            end
+        end
         if (x == X_SIZE) begin
             x <= 10'd0;
         end else begin
             x <= x + 10'd1;
         end
-        
-        if (x == X_SIZE) begin
-            if (y == Y_SIZE)
-                y <= 10'd0;
-        end else begin
-                y <= y + 10'd1;
-        end
     end
     //assign color = 3'b011;
+
 endmodule
