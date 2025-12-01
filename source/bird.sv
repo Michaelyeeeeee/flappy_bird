@@ -40,27 +40,29 @@ module bird(
         jump_pulse <= jump && !jump_prev;
     end
     
-    // Vertical movement updates only on the VSYNC (60 Hz) clock pulse
     always_ff @(posedge clk) begin
         if (vsync) begin
+            
+            logic [9:0] next_y;
+            
             if (jump_pulse) begin
-                // Move bird up by 60 pixels
-                bird_y_reg <= bird_y_reg - JUMP_DIST;
+                next_y = bird_y_reg - JUMP_DIST; // Move up
             end 
             else begin
-                // Move bird down by 1 pixel/frame
-                bird_y_reg <= bird_y_reg + DOWN_VELOCITY;
+                next_y = bird_y_reg + DOWN_VELOCITY; // Move down
             end
             
-            // Prevent bird from going above the top boundary
-            if (bird_y_reg < JUMP_DIST) begin
-                bird_y_reg <= 10'd0;
+            // check if the calculated position is reaching ceiling
+            if (next_y[9] == 1'b1 || next_y < 10'd0) begin 
+                next_y = 10'd0;
             end
             
-            // Prevent bird from falling below the floor
-            if (bird_y_reg > (SCREEN_HEIGHT - BIRD_SIZE)) begin
-                bird_y_reg <= SCREEN_HEIGHT - BIRD_SIZE;
+            // check if position is reaching floor
+            else if (next_y > (SCREEN_HEIGHT - BIRD_SIZE)) begin
+                next_y = SCREEN_HEIGHT - BIRD_SIZE;
             end
+            
+            bird_y_reg <= next_y;
         end
     end
     

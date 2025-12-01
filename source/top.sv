@@ -6,6 +6,7 @@
 // GREEN: ICE (MSB to LSB) 31 34 38 43
 // BLUE: ICE (MSB to LSB) 44_G6 46 48 3
 // VCC: 
+// JUMP: ICE PB
 
 
 module top (
