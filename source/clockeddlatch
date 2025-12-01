@@ -1,0 +1,14 @@
+`default_nettype none
+module ClockedDLatch_Behavioral (
+	input  logic D,
+	input  logic clk,
+	output logic Q,
+	output logic Qn
+	);
+	always_comb 
+		if (clk)
+			Q = D;
+		else
+			Q = Q;
+	assign Qn = ~Q;
+endmodule
